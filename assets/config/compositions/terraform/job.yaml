@@ -6,6 +6,7 @@ metadata:
 jobs:
   - name: plan
     description: Plan Terraform configuration
+    runsOn: ubuntu-22.04
     timeout: 20m
     retries: 1
     labels:
@@ -31,6 +32,7 @@ jobs:
 
   - name: apply
     description: Apply Terraform configuration
+    runsOn: ubuntu-22.04
     timeout: 30m
     retries: 1
     labels:
@@ -60,6 +62,7 @@ jobs:
 
   - name: destroy
     description: Destroy Terraform managed infrastructure
+    runsOn: ubuntu-22.04
     timeout: 25m
     retries: 0
     labels:

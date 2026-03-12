@@ -23,6 +23,7 @@ type JobRegistry struct {
 type JobSpec struct {
 	Name        string                 `yaml:"name" json:"name"`
 	Description string                 `yaml:"description" json:"description"`
+	RunsOn      string                 `yaml:"runsOn,omitempty" json:"runsOn,omitempty"`
 	Timeout     string                 `yaml:"timeout" json:"timeout"`
 	Retries     int                    `yaml:"retries" json:"retries"`
 	Steps       []Step                 `yaml:"steps" json:"steps"`
@@ -95,6 +96,7 @@ type JobInstance struct {
 	Component   string
 	Environment string
 	Composition string
+	RunsOn      string
 	Path        string
 	Steps       []RenderedStep
 	DependsOn   []string

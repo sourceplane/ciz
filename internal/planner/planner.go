@@ -54,6 +54,7 @@ func (jp *JobPlanner) PlanJobs(instances map[string][]*model.ComponentInstance) 
 				Component:   compInst.ComponentName,
 				Environment: envName,
 				Composition: compInst.Type,
+				RunsOn:      jobDef.RunsOn,
 				Path:        compInst.Path,
 				Timeout:     jobDef.Timeout,
 				Retries:     jobDef.Retries,

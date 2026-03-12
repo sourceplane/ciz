@@ -6,6 +6,7 @@ metadata:
 jobs:
   - name: deploy
     description: Deploy common services using Helm
+    runsOn: ubuntu-22.04
     timeout: 10m
     retries: 2
     labels:
@@ -30,6 +31,7 @@ jobs:
 
   - name: health-check
     description: Health check for common services
+    runsOn: ubuntu-22.04
     timeout: 5m
     retries: 1
     labels:
@@ -50,6 +52,7 @@ jobs:
 
   - name: rollback
     description: Rollback common services to previous version
+    runsOn: ubuntu-22.04
     timeout: 10m
     retries: 1
     labels:

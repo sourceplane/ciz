@@ -6,6 +6,7 @@ metadata:
 jobs:
   - name: deploy
     description: Deploy using Helm
+    runsOn: ubuntu-22.04
     timeout: 15m
     retries: 2
     labels:
@@ -30,6 +31,7 @@ jobs:
 
   - name: rollback
     description: Rollback Helm release to previous version
+    runsOn: ubuntu-22.04
     timeout: 10m
     retries: 1
     labels:
@@ -50,6 +52,7 @@ jobs:
 
   - name: diff
     description: Show differences between deployed and intended Helm release
+    runsOn: ubuntu-22.04
     timeout: 5m
     retries: 0
     labels:

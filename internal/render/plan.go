@@ -74,6 +74,7 @@ func (r *Renderer) RenderPlanWithOrder(metadata model.Metadata, jobInstances map
 			Composition: job.Composition,
 			JobRegistry: registryName,
 			Job:         job.Name, // The specific job name from the registry
+			RunsOn:      job.RunsOn,
 			Path:        job.Path,
 			Steps:       r.convertSteps(job.Steps),
 			DependsOn:   job.DependsOn,

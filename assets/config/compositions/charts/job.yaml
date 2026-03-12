@@ -6,6 +6,7 @@ metadata:
 jobs:
   - name: package
     description: Package chart definitions
+    runsOn: ubuntu-22.04
     timeout: 5m
     retries: 1
     labels:
@@ -28,6 +29,7 @@ jobs:
 
   - name: publish
     description: Publish charts to registry
+    runsOn: ubuntu-22.04
     timeout: 10m
     retries: 2
     labels:
@@ -63,6 +65,7 @@ jobs:
 
   - name: test
     description: Test chart templates and values
+    runsOn: ubuntu-22.04
     timeout: 5m
     retries: 1
     labels:

@@ -33,6 +33,7 @@ type JobBindingInfo struct {
 	Description string
 	Scope       string // deployment, recovery, analysis, etc
 	Steps       int    // Number of steps in this job
+	RunsOn      string
 	Timeout     string
 }
 
@@ -73,6 +74,7 @@ func ExtractModelInfo(modelName string, composition *loader.Composition, configD
 				Description: job.Description,
 				Scope:       scope,
 				Steps:       len(job.Steps),
+				RunsOn:      job.RunsOn,
 				Timeout:     job.Timeout,
 			}
 			info.AvailableJobs = append(info.AvailableJobs, bindingInfo)
@@ -212,7 +214,11 @@ func PrintLongFormat(info *ModelInfo, expandJobs bool) {
 
 		fmt.Printf("%s%d) %s%s\n", marker, i+1, job.Name, scope)
 		fmt.Printf("      description: %s\n", job.Description)
-		fmt.Printf("      steps: %d | timeout: %s\n", job.Steps, job.Timeout)
+		fmt.Printf("      steps: %d | timeout: %s", job.Steps, job.Timeout)
+		if job.RunsOn != "" {
+			fmt.Printf(" | runsOn: %s", job.RunsOn)
+		}
+		fmt.Printf("\n")
 		fmt.Printf("\n")
 	}
 

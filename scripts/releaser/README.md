@@ -17,7 +17,7 @@ go run ./cmd/releaser \
   --build-with gorelaser \
   --dist ../../dist \
   --output ../../oci \
-  --ref ghcr.io/sourceplane/lite-ci:v0.2.24
+  --ref ghcr.io/sourceplane/lite-ci:v0.2.25
 ```
 
 ## Quick smoke test
