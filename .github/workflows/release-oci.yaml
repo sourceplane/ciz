@@ -22,5 +22,5 @@ jobs:
           fetch-tags: true
       - uses: sourceplane/tinx-release-action@v1
         with:
-          registry: ghcr.io/sourceplane/lite-ci:v0.3.0
+          registry: ghcr.io/sourceplane/lite-ci:v0.2.23
           delegate-goreleaser: true
