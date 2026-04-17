@@ -2,6 +2,7 @@ package expand
 
 import (
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/sourceplane/liteci/internal/model"
@@ -29,7 +30,7 @@ func (e *Expander) Expand() (map[string][]*model.ComponentInstance, error) {
 		instances := make([]*model.ComponentInstance, 0)
 
 		// Get applicable components for this environment
-		applicableComps := e.getApplicableComponents(env)
+		applicableComps := e.getApplicableComponents(envName, env)
 
 		for _, compName := range applicableComps {
 			comp, exists := e.normalized.ComponentIndex[compName]
@@ -50,6 +51,7 @@ func (e *Expander) Expand() (map[string][]*model.ComponentInstance, error) {
 				Domain:        comp.Domain,
 				Labels:        comp.Labels,
 				StepOverrides: comp.Overrides.Steps,
+				SourcePath:    comp.SourcePath,
 				Enabled:       comp.Enabled,
 			}
 
@@ -85,8 +87,61 @@ func (e *Expander) Expand() (map[string][]*model.ComponentInstance, error) {
 }
 
 // getApplicableComponents returns components that apply to an environment
-func (e *Expander) getApplicableComponents(env model.Environment) []string {
-	return env.Selectors.Components
+func (e *Expander) getApplicableComponents(envName string, env model.Environment) []string {
+	componentNames := make([]string, 0, len(e.normalized.ComponentIndex))
+	for name := range e.normalized.ComponentIndex {
+		componentNames = append(componentNames, name)
+	}
+	sort.Strings(componentNames)
+
+	applicable := make([]string, 0, len(componentNames))
+	for _, name := range componentNames {
+		component := e.normalized.ComponentIndex[name]
+		if !componentMatchesEnvironment(component, envName, env) {
+			continue
+		}
+		applicable = append(applicable, name)
+	}
+
+	return applicable
+}
+
+func componentMatchesEnvironment(component model.Component, envName string, env model.Environment) bool {
+	if len(component.Subscribe.Environments) > 0 {
+		if !matchesAny(component.Subscribe.Environments, envName) {
+			return false
+		}
+	} else if !matchesAny(env.Selectors.Components, component.Name) {
+		return false
+	}
+
+	if len(env.Selectors.Domains) > 0 && !matchesAny(env.Selectors.Domains, component.Domain) {
+		return false
+	}
+
+	return true
+}
+
+func matchesAny(patterns []string, value string) bool {
+	if len(patterns) == 0 {
+		return false
+	}
+	for _, pattern := range patterns {
+		if matchesPattern(pattern, value) {
+			return true
+		}
+	}
+	return false
+}
+
+func matchesPattern(pattern, value string) bool {
+	if pattern == "*" {
+		return true
+	}
+	if strings.HasSuffix(pattern, "*") {
+		return strings.HasPrefix(value, strings.TrimSuffix(pattern, "*"))
+	}
+	return pattern == value
 }
 
 // mergeProperties applies the merge precedence order with proper override hierarchy

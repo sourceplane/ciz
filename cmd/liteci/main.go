@@ -18,7 +18,7 @@ import (
 
 func generatePlan() error {
 	fmt.Println("□ Loading intent...")
-	intent, err := loader.LoadIntent(intentFile)
+	intent, _, err := loadResolvedIntentFile(intentFile)
 	if err != nil {
 		return fmt.Errorf("failed to load intent: %w", err)
 	}
@@ -78,6 +78,8 @@ func generatePlan() error {
 		changedComps := make(map[string]bool)
 		for _, comp := range normalized.Components {
 			if intentChanged {
+				changedComps[comp.Name] = true
+			} else if isFileChanged(changedSet, comp.SourcePath) {
 				changedComps[comp.Name] = true
 			} else {
 				// Use the expanded component instances to get resolved paths
@@ -196,7 +198,7 @@ func generatePlan() error {
 
 func validateFiles() error {
 	fmt.Println("□ Validating intent...")
-	intent, err := loader.LoadIntent(intentFile)
+	intent, _, err := loadResolvedIntentFile(intentFile)
 	if err != nil {
 		return fmt.Errorf("failed to load intent: %w", err)
 	}
@@ -215,7 +217,7 @@ func validateFiles() error {
 
 func debugIntent() error {
 	fmt.Println("□ Loading and normalizing...")
-	intent, err := loader.LoadIntent(intentFile)
+	intent, tree, err := loadResolvedIntentFile(intentFile)
 	if err != nil {
 		return err
 	}
@@ -240,6 +242,16 @@ func debugIntent() error {
 	for name, comp := range normalized.Components {
 		fmt.Printf("  - %s: type=%s, domain=%s, enabled=%v, deps=%d\n",
 			name, comp.Type, comp.Domain, comp.Enabled, len(comp.DependsOn))
+	}
+
+	discovered := 0
+	for _, component := range tree.Components {
+		if component.Source == "discovered" {
+			discovered++
+		}
+	}
+	if discovered > 0 {
+		fmt.Printf("Discovered components: %d (roots=%v)\n", discovered, tree.Discovery.Roots)
 	}
 
 	return nil
@@ -316,7 +328,7 @@ func listComponents(args []string) error {
 	fmt.Println(stylePanel("└──────────────────────────────────────────────────────────┘"))
 
 	fmt.Println("□ Loading intent...")
-	intent, err := loader.LoadIntent(intentFile)
+	intent, _, err := loadResolvedIntentFile(intentFile)
 	if err != nil {
 		return fmt.Errorf("failed to load intent: %w", err)
 	}
@@ -354,8 +366,14 @@ func listComponents(args []string) error {
 
 		// For each component, check if any resolved paths have changed
 		for _, comp := range components {
+			normalizedComp, exists := normalized.ComponentIndex[comp.Name]
+			if !exists {
+				continue
+			}
 			if intentChanged {
 				// If intent changed, all components are affected
+				changedComps[comp.Name] = true
+			} else if isFileChanged(changedSet, normalizedComp.SourcePath) {
 				changedComps[comp.Name] = true
 			} else {
 				// Check each instance's resolved path
@@ -510,6 +528,9 @@ func printComponentDetails(comp *expand.ComponentMerged) {
 	fmt.Printf("│  type: %s\n", comp.Type)
 	fmt.Printf("│  domain: %s\n", comp.Domain)
 	fmt.Printf("│  enabled: %v\n", comp.Enabled)
+	if comp.SourcePath != "" {
+		fmt.Printf("│  source: %s\n", comp.SourcePath)
+	}
 
 	if len(comp.Dependencies) > 0 {
 		fmt.Printf("│  dependencies: %s\n", strings.Join(comp.Dependencies, ", "))
@@ -532,6 +553,17 @@ func main() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
+}
+
+func loadResolvedIntentFile(path string) (*model.Intent, *model.ComponentTree, error) {
+	intent, tree, err := loader.LoadResolvedIntent(path)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := loader.WriteComponentTreeCache(path, tree); err != nil {
+		fmt.Fprintf(os.Stderr, "⚠ warning: failed to write component tree cache: %v\n", err)
+	}
+	return intent, tree, nil
 }
 
 func changedFilesSet(options git.ChangeOptions) (map[string]struct{}, error) {
@@ -585,13 +617,19 @@ func isPathChanged(changedFiles map[string]struct{}, path string) bool {
 }
 
 func isIntentPathChanged(changedFiles map[string]struct{}, intentPath string) bool {
-	if intentPath == "" {
+	return isFileChanged(changedFiles, intentPath)
+}
+
+func isFileChanged(changedFiles map[string]struct{}, targetPath string) bool {
+	if targetPath == "" {
 		return false
 	}
 
-	base := filepathBase(intentPath)
+	normalizedTarget := normalizeFilePath(targetPath)
+	base := filepathBase(normalizedTarget)
 	for file := range changedFiles {
-		if file == intentPath || file == base || strings.HasSuffix(file, "/"+base) {
+		normalizedFile := normalizeFilePath(file)
+		if normalizedFile == normalizedTarget || normalizedFile == base || strings.HasSuffix(normalizedFile, "/"+base) || strings.HasSuffix(normalizedTarget, "/"+normalizedFile) {
 			return true
 		}
 	}
@@ -600,9 +638,13 @@ func isIntentPathChanged(changedFiles map[string]struct{}, intentPath string) bo
 }
 
 func filepathBase(path string) string {
-	parts := strings.Split(strings.ReplaceAll(path, "\\", "/"), "/")
+	parts := strings.Split(normalizeFilePath(path), "/")
 	if len(parts) == 0 {
 		return path
 	}
 	return parts[len(parts)-1]
+}
+
+func normalizeFilePath(path string) string {
+	return strings.TrimSuffix(strings.ReplaceAll(path, "\\", "/"), "/")
 }

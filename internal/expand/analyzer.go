@@ -41,6 +41,7 @@ type ComponentMerged struct {
 	Type         string
 	Domain       string
 	Enabled      bool
+	SourcePath   string
 	Instances    []*model.ComponentInstance
 	Dependencies []string
 }
@@ -69,6 +70,7 @@ func (ca *ComponentAnalyzer) GetComponentByName(compName string) (*ComponentMerg
 					comp.Type = inst.Type
 					comp.Domain = inst.Domain
 					comp.Enabled = inst.Enabled
+					comp.SourcePath = inst.SourcePath
 				}
 
 				for _, dep := range inst.DependsOn {
@@ -109,6 +111,7 @@ func (ca *ComponentAnalyzer) ListAll() ([]*ComponentMerged, error) {
 					Type:         inst.Type,
 					Domain:       inst.Domain,
 					Enabled:      inst.Enabled,
+					SourcePath:   inst.SourcePath,
 					Instances:    make([]*model.ComponentInstance, 0),
 					Dependencies: make([]string, 0),
 				}

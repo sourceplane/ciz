@@ -5,9 +5,15 @@ type Intent struct {
 	APIVersion   string                 `yaml:"apiVersion" json:"apiVersion"`
 	Kind         string                 `yaml:"kind" json:"kind"`
 	Metadata     Metadata               `yaml:"metadata" json:"metadata"`
+	Discovery    Discovery              `yaml:"discovery" json:"discovery"`
 	Groups       map[string]Group       `yaml:"groups" json:"groups"`
 	Environments map[string]Environment `yaml:"environments" json:"environments"`
 	Components   []Component            `yaml:"components" json:"components"`
+}
+
+// Discovery limits repository scanning for external component manifests.
+type Discovery struct {
+	Roots []string `yaml:"roots" json:"roots"`
 }
 
 // Metadata holds standard object metadata
@@ -40,15 +46,22 @@ type EnvironmentSelectors struct {
 
 // Component is execution-agnostic declaration
 type Component struct {
-	Name      string                 `yaml:"name" json:"name"`
-	Type      string                 `yaml:"type" json:"type"`
-	Domain    string                 `yaml:"domain" json:"domain"`
-	Enabled   bool                   `yaml:"enabled" json:"enabled"`
-	Path      string                 `yaml:"path" json:"path"`
-	Inputs    map[string]interface{} `yaml:"inputs" json:"inputs"`
-	Overrides ComponentOverrides     `yaml:"overrides" json:"overrides"`
-	Labels    map[string]string      `yaml:"labels" json:"labels"`
-	DependsOn []Dependency           `yaml:"dependsOn" json:"dependsOn"`
+	Name       string                `yaml:"name" json:"name"`
+	Type       string                `yaml:"type" json:"type"`
+	Domain     string                `yaml:"domain" json:"domain"`
+	Enabled    bool                  `yaml:"enabled" json:"enabled"`
+	Path       string                `yaml:"path" json:"path"`
+	Subscribe  ComponentSubscribe    `yaml:"subscribe" json:"subscribe"`
+	Inputs     map[string]interface{} `yaml:"inputs" json:"inputs"`
+	Overrides  ComponentOverrides    `yaml:"overrides" json:"overrides"`
+	Labels     map[string]string     `yaml:"labels" json:"labels"`
+	DependsOn  []Dependency          `yaml:"dependsOn" json:"dependsOn"`
+	SourcePath string                `yaml:"-" json:"-"`
+}
+
+// ComponentSubscribe declares which environments a component participates in.
+type ComponentSubscribe struct {
+	Environments []string `yaml:"environments" json:"environments"`
 }
 
 // ComponentOverrides defines component-specific planner overrides.
@@ -80,6 +93,7 @@ type ComponentInstance struct {
 	Type          string
 	Domain        string
 	Path          string
+	SourcePath    string
 	Labels        map[string]string
 	Inputs        map[string]interface{}
 	StepOverrides []Step
