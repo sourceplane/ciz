@@ -261,6 +261,12 @@ metadata:
   name: microservices-deployment
   description: Multi-environment microservices deployment
 
+discovery:
+  roots:
+    - services/
+    - infra/
+    - deploy/
+
 # Domain-level configuration
 groups:
   platform:
@@ -275,42 +281,43 @@ groups:
 environments:
   production:
     selectors:
-      components: ["*"]
       domains: ["platform"]
     policies:
       region: us-east-1
   
   staging:
-    selectors:
-      components: ["web-app", "common-services"]
     defaults:
       replicas: 2
 
-# Components
+# Inline components still work when you need them
 components:
-  - name: web-app
-    type: helm
+  - name: component-charts
+    type: charts
     domain: platform
-    enabled: true
+    subscribe:
+      environments: [development, staging, production]
     inputs:
-      image: web-app:1.0
-      replicas: 3
-    dependsOn:
-      - common-services
+      registry: mycompany.azurecr.io/helm/charts
+```
 
-  - name: web-app-infra
-    type: terraform
-    domain: platform
-    inputs:
-      aws_region: us-east-1
-    dependsOn:
-      - common-services
+External components can live next to the code they own. Each `component.yaml` is loaded from the configured discovery roots, and if `spec.path` is omitted liteci defaults the job working directory to the directory containing the manifest.
 
-  - name: common-services
-    type: helmCommon
-    enabled: true
-    inputs:
-      shared_namespace: common
+**Example component.yaml:**
+```yaml
+apiVersion: sourceplane.io/v1
+kind: Component
+metadata:
+  name: web-app
+
+spec:
+  type: helm
+  domain: platform
+  subscribe:
+    environments: [development, staging, production]
+  inputs:
+    chart: oci://mycompany.azurecr.io/helm/charts/default
+  dependsOn:
+    - component: common-services
 ```
 
 **Schema validation at:**

@@ -2,6 +2,7 @@ package normalize
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/sourceplane/liteci/internal/model"
@@ -28,6 +29,9 @@ func NormalizeIntent(intent *model.Intent) (*model.NormalizedIntent, error) {
 		if comp.Name == "" {
 			return nil, fmt.Errorf("component must have a name")
 		}
+		if _, exists := normalized.Components[comp.Name]; exists {
+			return nil, fmt.Errorf("duplicate component name: %s", comp.Name)
+		}
 		if comp.Type == "" {
 			return nil, fmt.Errorf("component %s must have a type", comp.Name)
 		}
@@ -43,6 +47,9 @@ func NormalizeIntent(intent *model.Intent) (*model.NormalizedIntent, error) {
 		}
 		if comp.Inputs == nil {
 			comp.Inputs = make(map[string]interface{})
+		}
+		if comp.Subscribe.Environments == nil {
+			comp.Subscribe.Environments = []string{}
 		}
 		if comp.DependsOn == nil {
 			comp.DependsOn = []model.Dependency{}
@@ -87,6 +94,7 @@ func NormalizeIntent(intent *model.Intent) (*model.NormalizedIntent, error) {
 			for compName := range normalized.ComponentIndex {
 				expandedComps = append(expandedComps, compName)
 			}
+			sort.Strings(expandedComps)
 			env.Selectors.Components = expandedComps
 		}
 

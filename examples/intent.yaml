@@ -6,6 +6,12 @@ metadata:
   description: Example multi-environment microservices deployment
   namespace: default
 
+discovery:
+  roots:
+    - services/
+    - infra/
+    - deploy/
+
 groups:
   platform:
     policies:
@@ -25,10 +31,6 @@ groups:
 environments:
   production:
     selectors:
-      components:
-        - "web-app"
-        - "web-app-infra"
-        - "common-services"
       domains:
         - "platform"
     defaults:
@@ -40,10 +42,8 @@ environments:
 
   staging:
     selectors:
-      components:
-        - "web-app"
-        - "web-app-infra"
-        - "common-services"
+      domains:
+        - "platform"
     defaults:
       region: us-west-2
       replicas: 1
@@ -52,9 +52,6 @@ environments:
       requireApproval: "false"
 
   development:
-    selectors:
-      components:
-        - "*"
     defaults:
       region: us-east-1
       replicas: 1
@@ -63,67 +60,15 @@ environments:
       requireApproval: "false"
 
 components:
-  - name: web-app
-    dir: service/web-app
-    type: helm
-    domain: platform
-    enabled: true
-    path: "services/web-app"
-    inputs:
-      version: "1.0.0"
-      replicaCount: 2
-      chart: oci://mycompany.azurecr.io/helm/charts/default
-      imagePullPolicy: IfNotPresent
-    labels:
-      team: platform
-      tier: frontend
-    overrides:
-      steps:
-        - name: verify
-          phase: post
-          order: 10
-          run: kubectl get deployment -n platform-web-app web-app
-          onFailure: continue
-    dependsOn:
-      - component: common-services
-        environment: ""
-        scope: same-environment
-        condition: success
-
-  - name: web-app-infra
-    type: terraform
-    domain: platform
-    enabled: true
-    inputs:
-      workspace: prod-infrastructure
-      environment: production-only
-      autoApprove: "false"
-      backend: s3
-    labels:
-      team: platform
-      tier: infrastructure
-    dependsOn:
-      - component: common-services
-        environment: ""
-        scope: same-environment
-        condition: success
-
-  - name: common-services
-    type: helmCommon
-    enabled: true
-    inputs:
-      name: common-services
-      replicas: 1
-      chart: oci://mycompany.azurecr.io/helm/charts/common
-      imagePullPolicy: IfNotPresent
-    labels:
-      team: platform
-      tier: backend
-    dependsOn: []
-
   - name: component-charts
     type: charts
+    domain: platform
     enabled: true
+    subscribe:
+      environments:
+        - development
+        - staging
+        - production
     inputs:
       registry: mycompany.azurecr.io/helm/charts
       pullPolicy: Always

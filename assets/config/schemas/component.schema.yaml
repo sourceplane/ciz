@@ -1,0 +1,113 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: liteci Component
+description: External component manifest specification
+type: object
+required:
+  - apiVersion
+  - kind
+  - metadata
+  - spec
+properties:
+  apiVersion:
+    type: string
+    pattern: ^sourceplane\.io/v[0-9]+$
+  kind:
+    type: string
+    enum:
+      - Component
+  metadata:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 63
+  spec:
+    type: object
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        minLength: 1
+      domain:
+        type: string
+      enabled:
+        type: boolean
+        default: true
+      path:
+        type: string
+      subscribe:
+        type: object
+        properties:
+          environments:
+            type: array
+            items:
+              type: string
+      inputs:
+        type: object
+        additionalProperties: true
+      overrides:
+        type: object
+        properties:
+          steps:
+            type: array
+            items:
+              type: object
+              required:
+                - name
+                - run
+              properties:
+                name:
+                  type: string
+                phase:
+                  type: string
+                  enum:
+                    - pre
+                    - main
+                    - post
+                order:
+                  type: integer
+                  minimum: 0
+                run:
+                  type: string
+                timeout:
+                  type: string
+                  pattern: ^[0-9]+(m|h|s)$
+                retry:
+                  type: integer
+                  minimum: 0
+                  maximum: 10
+                onFailure:
+                  type: string
+                  enum:
+                    - stop
+                    - continue
+      labels:
+        type: object
+        additionalProperties:
+          type: string
+      dependsOn:
+        type: array
+        items:
+          type: object
+          required:
+            - component
+          properties:
+            component:
+              type: string
+            environment:
+              type: string
+            scope:
+              type: string
+              enum:
+                - same-environment
+                - cross-environment
+            condition:
+              type: string
+              enum:
+                - success
+                - always
+                - failure

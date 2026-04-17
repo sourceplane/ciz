@@ -13,7 +13,8 @@
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    User Intent Layer                         │
-│  intent.yaml (what to deploy) + groups (policies)           │
+│  intent.yaml + discovered component.yaml files              │
+│  + groups (policies)                                        │
 └────────────────────────┬────────────────────────────────────┘
                          │
                          ▼
@@ -104,7 +105,7 @@
 
 ### 1. Intent
 
-**File**: `intent.yaml`  
+**File**: `intent.yaml` plus discovered `component.yaml` manifests  
 **Purpose**: Declarative specification of WHAT to deploy
 
 ```yaml
@@ -117,22 +118,24 @@ groups:              # Ownership/policy domains
 
 environments:        # Environment definitions
   production:
-    selectors:       # Which components apply
-      components: [web-app, common-services]
+    selectors:       # Optional domain filters / legacy selectors
+      domains: [platform]
     defaults:        # Env-specific config
       replicas: 3
     policies:        # Env constraints
       requireApproval: true
 
-components:          # Execution-agnostic specs
-  - name: web-app
-    type: helm       # Maps to job definition
-    domain: platform # Links to group policies
-    inputs: {...}    # Component-specific config
-    dependsOn: [...]  # Dependency graph
+discovery:           # Optional discovery roots for external components
+  roots: [services/, infra/, deploy/]
+
+components:          # Optional inline execution-agnostic specs
+  - name: component-charts
+    type: charts     # Maps to job definition
+    subscribe:       # Inline components can also self-declare envs
+      environments: [development, staging, production]
 ```
 
-**Key principle**: Intent contains ZERO execution details.
+**Key principle**: Intent and component manifests contain ZERO execution details.
 
 ### 2. Job Registry
 

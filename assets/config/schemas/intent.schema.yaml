@@ -6,7 +6,6 @@ required:
   - apiVersion
   - kind
   - metadata
-  - components
 properties:
   apiVersion:
     type: string
@@ -30,6 +29,14 @@ properties:
       namespace:
         type: string
         default: default
+  discovery:
+    type: object
+    properties:
+      roots:
+        type: array
+        description: Optional directories to recursively scan for component.yaml files relative to the intent file.
+        items:
+          type: string
   groups:
     type: object
     additionalProperties:
@@ -46,8 +53,6 @@ properties:
     type: object
     additionalProperties:
       type: object
-      required:
-        - selectors
       properties:
         selectors:
           type: object
@@ -90,6 +95,13 @@ properties:
         path:
           type: string
           description: Working directory path for component execution (highest priority in override hierarchy, supports template variables)
+        subscribe:
+          type: object
+          properties:
+            environments:
+              type: array
+              items:
+                type: string
         inputs:
           type: object
           additionalProperties: true
