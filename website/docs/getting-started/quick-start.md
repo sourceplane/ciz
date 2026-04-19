@@ -10,12 +10,12 @@ This walkthrough uses the repository's example intent, discovered components, an
 make build
 ```
 
-The commands below assume you are running them from the repository root and using the freshly built `./arx` binary.
+The commands below assume you are running them from the repository root and using the freshly built `./gluon` binary.
 
 ## 2. Inspect the shipped compositions
 
 ```bash
-./arx compositions --config-dir assets/config/compositions
+./gluon compositions --config-dir assets/config/compositions
 ```
 
 The built-in composition set currently includes `charts`, `helm`, `helmCommon`, and `terraform`.
@@ -23,7 +23,7 @@ The built-in composition set currently includes `charts`, `helm`, `helmCommon`, 
 ## 3. Validate the example intent and discovery tree
 
 ```bash
-./arx validate \
+./gluon validate \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions
 ```
@@ -33,7 +33,7 @@ This loads `examples/intent.yaml`, scans the discovery roots declared there, and
 ## 4. Inspect the merged component model
 
 ```bash
-./arx component web-app \
+./gluon component web-app \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions \
   --long
@@ -44,10 +44,10 @@ Use this view when you want to verify labels, overrides, subscriptions, inputs, 
 ## 5. Compile a deterministic plan
 
 ```bash
-./arx plan \
+./gluon plan \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions \
-  --output /tmp/arx-plan.json \
+  --output /tmp/gluon-plan.json \
   --view dag
 ```
 
@@ -56,7 +56,7 @@ The generated file is the execution boundary: a fully expanded DAG with explicit
 ## 6. Preview execution
 
 ```bash
-./arx run --plan /tmp/arx-plan.json
+./gluon run --plan /tmp/gluon-plan.json
 ```
 
 `run` defaults to dry-run mode, which prints the execution order, working directories, runner choice, and resolved steps without mutating state.
@@ -64,8 +64,8 @@ The generated file is the execution boundary: a fully expanded DAG with explicit
 ## 7. Execute the plan
 
 ```bash
-./arx run \
-  --plan /tmp/arx-plan.json \
+./gluon run \
+  --plan /tmp/gluon-plan.json \
   --execute \
   --runner local
 ```

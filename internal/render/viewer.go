@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/sourceplane/arx/internal/model"
-	"github.com/sourceplane/arx/internal/ui"
+	"github.com/sourceplane/gluon/internal/model"
+	"github.com/sourceplane/gluon/internal/ui"
 )
 
 // PlanViewer provides human-readable visualization of a plan DAG

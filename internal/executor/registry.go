@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/sourceplane/arx/internal/gha"
+	"github.com/sourceplane/gluon/internal/gha"
 )
 
 type factory func() Executor

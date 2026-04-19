@@ -3,7 +3,7 @@ package expand
 import (
 	"sort"
 
-	"github.com/sourceplane/arx/internal/model"
+	"github.com/sourceplane/gluon/internal/model"
 )
 
 // ComponentAnalyzer provides analysis of components and their resolved properties

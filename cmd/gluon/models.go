@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/sourceplane/arx/internal/loader"
+	"github.com/sourceplane/gluon/internal/loader"
 	"gopkg.in/yaml.v3"
 )
 

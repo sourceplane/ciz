@@ -2,10 +2,10 @@ apiVersion: tinx.io/v1
 kind: Provider
 metadata:
   namespace: sourceplane
-  name: arx
+  name: gluon
   version: v0.0.0
   description: Provider-native CI planning engine that compiles intent into deterministic execution plans
-  homepage: https://github.com/sourceplane/arx
+  homepage: https://github.com/sourceplane/gluon
   license: MIT
 spec:
   runtime: binary

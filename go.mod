@@ -1,4 +1,4 @@
-module github.com/sourceplane/arx
+module github.com/sourceplane/gluon
 
 go 1.25.0
 

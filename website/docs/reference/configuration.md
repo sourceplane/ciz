@@ -2,7 +2,7 @@
 title: Configuration
 ---
 
-`arx` configuration is split across three user-facing surfaces:
+`gluon` configuration is split across three user-facing surfaces:
 
 1. `intent.yaml`
 2. discovered `component.yaml` manifests
@@ -58,7 +58,7 @@ Components carry type-specific inputs, labels, overrides, and dependency declara
 Pass the composition directory through the global `--config-dir` flag:
 
 ```bash
-arx plan --intent intent.yaml --config-dir assets/config/compositions
+gluon plan --intent intent.yaml --config-dir assets/config/compositions
 ```
 
 Each type directory contains a schema and a job registry. That is where type validation and runtime job definitions live.

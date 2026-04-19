@@ -2,12 +2,12 @@
 title: Change detection
 ---
 
-`arx` can narrow inspection and planning to changed files or changed components. That is useful in pull requests, preview environments, and incremental review workflows.
+`gluon` can narrow inspection and planning to changed files or changed components. That is useful in pull requests, preview environments, and incremental review workflows.
 
 ## Commands that support change detection
 
-- `arx plan`
-- `arx component`
+- `gluon plan`
+- `gluon component`
 
 Use those commands when you want to focus on the parts of the platform graph that were touched by a branch, commit range, or explicit file list.
 
@@ -25,14 +25,14 @@ Use those commands when you want to focus on the parts of the platform graph tha
 ## Pull request review flow
 
 ```bash
-arx component \
+gluon component \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions \
   --changed \
   --base main \
   --long
 
-arx plan \
+gluon plan \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions \
   --changed \
@@ -42,10 +42,10 @@ arx plan \
 
 ## Explicit file lists
 
-When your CI system already knows the changed files, pass them directly instead of asking `arx` to compute the diff:
+When your CI system already knows the changed files, pass them directly instead of asking `gluon` to compute the diff:
 
 ```bash
-arx plan \
+gluon plan \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions \
   --files examples/services/web-app/component.yaml,examples/intent.yaml \
@@ -57,7 +57,7 @@ arx plan \
 For uncommitted work in a repository checkout:
 
 ```bash
-arx component \
+gluon component \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions \
   --changed \

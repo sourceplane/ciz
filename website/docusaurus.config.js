@@ -3,12 +3,12 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 const config = {
-  title: 'arx',
+  title: 'gluon',
   tagline: 'Policy-aware planner that compiles intent into deterministic execution DAGs',
-  url: 'https://arx-docs.pages.dev',
+  url: 'https://gluon-docs.pages.dev',
   baseUrl: '/',
   organizationName: 'sourceplane',
-  projectName: 'arx',
+  projectName: 'gluon',
   onBrokenLinks: 'throw',
   onDuplicateRoutes: 'throw',
   markdown: {
@@ -42,7 +42,7 @@ const config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'arx',
+      title: 'gluon',
       items: [
         {
           to: '/',
@@ -50,7 +50,7 @@ const config = {
           position: 'left',
         },
         {
-          href: 'https://github.com/sourceplane/arx',
+          href: 'https://github.com/sourceplane/gluon',
           label: 'GitHub',
           position: 'right',
         },
@@ -77,7 +77,7 @@ const config = {
         {
           title: 'Reference',
           items: [
-            { label: 'CLI Overview', to: '/cli/arx' },
+            { label: 'CLI Overview', to: '/cli/gluon' },
             { label: 'Configuration', to: '/reference/configuration' },
             { label: 'Deploy Docs', to: '/contributing/deploying-docs' },
           ],

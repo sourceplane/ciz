@@ -2,7 +2,7 @@
 title: Deploying docs
 ---
 
-The `arx` documentation site is a docs-only Docusaurus project under `website/`. The production target is Cloudflare Pages.
+The `gluon` documentation site is a docs-only Docusaurus project under `website/`. The production target is Cloudflare Pages.
 
 ## Local validation
 
@@ -32,10 +32,10 @@ cd website
 npm ci
 npm run docs:build
 wrangler login
-wrangler pages deploy docs-build --project-name arx-docs
+wrangler pages deploy docs-build --project-name gluon-docs
 ```
 
-Replace `arx-docs` if your Cloudflare Pages project name differs.
+Replace `gluon-docs` if your Cloudflare Pages project name differs.
 
 ## Deployment notes
 

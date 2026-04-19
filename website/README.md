@@ -1,6 +1,6 @@
-# arx website
+# gluon website
 
-This directory contains the Docusaurus-based documentation site for `arx`.
+This directory contains the Docusaurus-based documentation site for `gluon`.
 
 ## Local development
 
@@ -26,7 +26,7 @@ cd website
 npm ci
 npm run docs:build
 wrangler login
-wrangler pages deploy docs-build --project-name arx-docs
+wrangler pages deploy docs-build --project-name gluon-docs
 ```
 
-Replace `arx-docs` with the actual Cloudflare Pages project name if it differs.
+Replace `gluon-docs` with the actual Cloudflare Pages project name if it differs.

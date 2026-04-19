@@ -1,13 +1,13 @@
 ---
-title: arx debug
+title: gluon debug
 ---
 
-`arx debug` traces intent processing so you can inspect what the planner is doing before it materializes a final plan.
+`gluon debug` traces intent processing so you can inspect what the planner is doing before it materializes a final plan.
 
 ## Usage
 
 ```bash
-arx debug \
+gluon debug \
   --intent intent.yaml \
   --config-dir assets/config/compositions
 ```
@@ -24,7 +24,7 @@ Use `debug` when you need to inspect:
 ## Example
 
 ```bash
-arx debug -i examples/intent.yaml -c assets/config/compositions
+gluon debug -i examples/intent.yaml -c assets/config/compositions
 ```
 
 ## Flags
@@ -34,4 +34,4 @@ arx debug -i examples/intent.yaml -c assets/config/compositions
 | `--intent`, `-i` | Intent file path |
 | `--config-dir`, `-c` | Global flag used to load compositions |
 
-If you need a final artifact after debugging, switch back to [arx plan](./arx-plan.md).
+If you need a final artifact after debugging, switch back to [gluon plan](./gluon-plan.md).

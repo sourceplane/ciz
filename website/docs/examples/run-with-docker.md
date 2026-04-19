@@ -7,17 +7,17 @@ The Docker backend executes each step inside a container and mounts the reposito
 ## Compile a plan first
 
 ```bash
-arx plan \
+gluon plan \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions \
-  --output /tmp/arx-docker-plan.json
+  --output /tmp/gluon-docker-plan.json
 ```
 
 ## Execute through Docker
 
 ```bash
-arx run \
-  --plan /tmp/arx-docker-plan.json \
+gluon run \
+  --plan /tmp/gluon-docker-plan.json \
   --execute \
   --runner docker
 ```

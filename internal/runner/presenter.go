@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sourceplane/arx/internal/model"
-	"github.com/sourceplane/arx/internal/ui"
+	"github.com/sourceplane/gluon/internal/model"
+	"github.com/sourceplane/gluon/internal/ui"
 )
 
 var (

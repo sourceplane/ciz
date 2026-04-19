@@ -74,9 +74,9 @@ spec:
 ## 5. Validate and inspect
 
 ```bash
-arx validate --intent examples/intent.yaml --config-dir assets/config/compositions
-arx compositions mytype --config-dir assets/config/compositions
-arx plan --intent examples/intent.yaml --config-dir assets/config/compositions --output /tmp/mytype-plan.json
+gluon validate --intent examples/intent.yaml --config-dir assets/config/compositions
+gluon compositions mytype --config-dir assets/config/compositions
+gluon plan --intent examples/intent.yaml --config-dir assets/config/compositions --output /tmp/mytype-plan.json
 ```
 
 ## Authoring guidelines

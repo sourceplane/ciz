@@ -1,7 +1,7 @@
 {
-  "name": "arx-docs",
+  "name": "gluon-docs",
   "version": "1.0.0",
-  "description": "Documentation site for arx",
+  "description": "Documentation site for gluon",
   "scripts": {
     "docs:start": "docusaurus start",
     "docs:build": "docusaurus build --out-dir docs-build",
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sourceplane/arx.git"
+    "url": "git+https://github.com/sourceplane/gluon.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/sourceplane/arx/issues"
+    "url": "https://github.com/sourceplane/gluon/issues"
   },
-  "homepage": "https://github.com/sourceplane/arx#readme",
+  "homepage": "https://github.com/sourceplane/gluon#readme",
   "private": true,
   "overrides": {
     "webpack": "5.105.4",

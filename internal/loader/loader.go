@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/santhosh-tekuri/jsonschema/v5"
-	"github.com/sourceplane/arx/internal/model"
+	"github.com/sourceplane/gluon/internal/model"
 	"gopkg.in/yaml.v3"
 )
 
@@ -20,7 +20,7 @@ const (
 	componentKind            = "Component"
 	componentTreeCacheSource = "discovered"
 	componentInlineSource    = "inline"
-	componentTreeCacheFile   = ".arx/component-tree.yaml"
+	componentTreeCacheFile   = ".gluon/component-tree.yaml"
 )
 
 // LoadIntent loads and parses an intent YAML file
@@ -200,7 +200,7 @@ func discoverComponentFiles(baseDir string, roots []string) ([]string, error) {
 
 func shouldSkipDiscoveryDir(name string) bool {
 	switch name {
-	case ".git", ".arx", "node_modules":
+	case ".git", ".gluon", "node_modules":
 		return true
 	default:
 		return false

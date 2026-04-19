@@ -1,12 +1,12 @@
 .PHONY: build run validate debug plan clean test help
 
-BINARY_NAME=arx
+BINARY_NAME=gluon
 BINARY_PATH=./cmd/$(BINARY_NAME)
 MAIN_PATH=$(BINARY_PATH)/main.go
 
 # Default target
 help:
-	@echo "arx - Schema-Driven Planner Engine"
+	@echo "gluon - Schema-Driven Planner Engine"
 	@echo ""
 	@echo "Available targets:"
 	@echo "  build       - Build the binary"
@@ -71,9 +71,9 @@ release-snapshot:
 
 release-test:
 	@echo "🧪 Testing OCI artifact structure..."
-	@mkdir -p /tmp/arx-test
+	@mkdir -p /tmp/gluon-test
 	@for arch in linux/amd64 darwin/arm64; do \
-		if ls dist/*/platform-native_*_$${arch/\//_}/arx > /dev/null 2>&1; then \
+		if ls dist/*/platform-native_*_$${arch/\//_}/gluon > /dev/null 2>&1; then \
 			echo "✓ Binary found: $${arch}"; \
 		fi; \
 	done

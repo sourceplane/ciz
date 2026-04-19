@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	cliName         = "arx"
-	configDirEnvVar = "ARX_CONFIG_DIR"
-	runnerEnvVar    = "ARX_RUNNER"
+	cliName         = "gluon"
+	configDirEnvVar = "GLUON_CONFIG_DIR"
+	runnerEnvVar    = "GLUON_RUNNER"
 )
 
 var version = "dev"
@@ -36,7 +36,7 @@ var (
 var rootCmd = &cobra.Command{
 	Use:     cliName,
 	Short:   "Planner engine: Intent → Plan DAG",
-	Long:    "arx is a schema-driven planner that compiles policy-aware intent into deterministic execution DAGs",
+	Long:    "gluon is a schema-driven planner that compiles policy-aware intent into deterministic execution DAGs",
 	Version: version,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		if commandNeedsConfig(cmd) && configDir == "" {

@@ -1,15 +1,15 @@
 ---
-title: arx component
+title: gluon component
 ---
 
-`arx component` lists discovered components or prints the merged view for a single component.
+`gluon component` lists discovered components or prints the merged view for a single component.
 
 ## Usage
 
 List components:
 
 ```bash
-arx component \
+gluon component \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions
 ```
@@ -17,7 +17,7 @@ arx component \
 Inspect a single component:
 
 ```bash
-arx component web-app \
+gluon component web-app \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions \
   --long
@@ -28,7 +28,7 @@ The alias `components` is also supported.
 ## Change-aware examples
 
 ```bash
-arx component \
+gluon component \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions \
   --changed \

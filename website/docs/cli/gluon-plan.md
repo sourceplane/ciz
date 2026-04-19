@@ -1,13 +1,13 @@
 ---
-title: arx plan
+title: gluon plan
 ---
 
-`arx plan` compiles intent, component discovery, and compositions into an immutable execution DAG.
+`gluon plan` compiles intent, component discovery, and compositions into an immutable execution DAG.
 
 ## Usage
 
 ```bash
-arx plan \
+gluon plan \
   --intent intent.yaml \
   --config-dir assets/config/compositions \
   --output plan.json
@@ -18,31 +18,31 @@ arx plan \
 Generate a JSON plan:
 
 ```bash
-arx plan -i examples/intent.yaml -c assets/config/compositions -o plan.json
+gluon plan -i examples/intent.yaml -c assets/config/compositions -o plan.json
 ```
 
 Generate YAML instead:
 
 ```bash
-arx plan -i examples/intent.yaml -c assets/config/compositions -o plan.yaml -f yaml
+gluon plan -i examples/intent.yaml -c assets/config/compositions -o plan.yaml -f yaml
 ```
 
 Filter to one environment:
 
 ```bash
-arx plan -i examples/intent.yaml -c assets/config/compositions --env staging
+gluon plan -i examples/intent.yaml -c assets/config/compositions --env staging
 ```
 
 Preview the dependency graph while compiling:
 
 ```bash
-arx plan -i examples/intent.yaml -c assets/config/compositions --view dag
+gluon plan -i examples/intent.yaml -c assets/config/compositions --view dag
 ```
 
 Focus on changed components:
 
 ```bash
-arx plan -i examples/intent.yaml -c assets/config/compositions --changed --base main
+gluon plan -i examples/intent.yaml -c assets/config/compositions --changed --base main
 ```
 
 ## Flags
