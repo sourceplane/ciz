@@ -61,9 +61,9 @@ The matching schema declares fields such as `chart`, `timeout`, `namespacePrefix
 ## Inspecting compositions from the CLI
 
 ```bash
-arx compositions --config-dir assets/config/compositions
-arx compositions helm --config-dir assets/config/compositions
-arx compositions list helm --config-dir assets/config/compositions --long --expand-jobs
+gluon compositions --config-dir assets/config/compositions
+gluon compositions helm --config-dir assets/config/compositions
+gluon compositions list helm --config-dir assets/config/compositions --long --expand-jobs
 ```
 
 Read [composition contract](../compositions/composition-contract.md) when you are ready to author your own type.

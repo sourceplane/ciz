@@ -1,13 +1,13 @@
 ---
-title: arx validate
+title: gluon validate
 ---
 
-`arx validate` checks intent, discovered component manifests, and type-specific schema constraints without generating a plan.
+`gluon validate` checks intent, discovered component manifests, and type-specific schema constraints without generating a plan.
 
 ## Usage
 
 ```bash
-arx validate \
+gluon validate \
   --intent intent.yaml \
   --config-dir assets/config/compositions
 ```
@@ -23,13 +23,13 @@ arx validate \
 Validate the repository example:
 
 ```bash
-arx validate -i examples/intent.yaml -c assets/config/compositions
+gluon validate -i examples/intent.yaml -c assets/config/compositions
 ```
 
 Enable debug output while validating:
 
 ```bash
-arx validate -i examples/intent.yaml -c assets/config/compositions --debug
+gluon validate -i examples/intent.yaml -c assets/config/compositions --debug
 ```
 
 ## Flags

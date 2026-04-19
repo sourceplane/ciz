@@ -1,5 +1,5 @@
 {
-  "apiVersion": "arx.io/v1",
+  "apiVersion": "gluon.io/v1",
   "kind": "Plan",
   "metadata": {
     "name": "microservices-deployment",
@@ -11,7 +11,7 @@
   "execution": {
     "concurrency": 4,
     "failFast": true,
-    "stateFile": ".arx-state.json"
+    "stateFile": ".gluon-state.json"
   },
   "spec": {
     "jobBindings": {

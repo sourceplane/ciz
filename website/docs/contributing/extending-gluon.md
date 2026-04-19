@@ -1,12 +1,12 @@
 ---
-title: Extending arx
+title: Extending gluon
 ---
 
-`arx` is designed so new commands, stages, and runtime capabilities can be added without collapsing the planner architecture.
+`gluon` is designed so new commands, stages, and runtime capabilities can be added without collapsing the planner architecture.
 
 ## Add a new CLI command
 
-Follow the existing command pattern under `cmd/arx`:
+Follow the existing command pattern under `cmd/gluon`:
 
 1. keep Cobra wiring in a dedicated `command_*.go` file
 2. place business logic in `internal/*`

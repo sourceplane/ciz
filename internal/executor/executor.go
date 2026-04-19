@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/sourceplane/arx/internal/model"
+	"github.com/sourceplane/gluon/internal/model"
 )
 
 const (

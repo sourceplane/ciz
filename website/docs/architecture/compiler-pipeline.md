@@ -2,7 +2,7 @@
 title: Compiler pipeline
 ---
 
-`arx` follows a deterministic compiler pipeline from desired state to executable plan.
+`gluon` follows a deterministic compiler pipeline from desired state to executable plan.
 
 ## Stages
 

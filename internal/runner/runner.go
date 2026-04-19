@@ -13,13 +13,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sourceplane/arx/internal/executor"
-	"github.com/sourceplane/arx/internal/model"
-	"github.com/sourceplane/arx/internal/ui"
+	"github.com/sourceplane/gluon/internal/executor"
+	"github.com/sourceplane/gluon/internal/model"
+	"github.com/sourceplane/gluon/internal/ui"
 )
 
 const (
-	defaultStateFileName = ".arx-state.json"
+	defaultStateFileName = ".gluon-state.json"
 )
 
 // Runner executes a compiled plan in dependency order.
@@ -96,8 +96,8 @@ func (r *Runner) Run(plan *model.Plan) (runErr error) {
 		BaseEnv: executor.MergeEnvironment(
 			executor.EnvironmentFromList(os.Environ()),
 			map[string]string{
-				"ARX_CONTEXT": r.Runtime.Environment,
-				"ARX_RUNNER":  r.Runtime.Runner,
+				"GLUON_CONTEXT": r.Runtime.Environment,
+				"GLUON_RUNNER":  r.Runtime.Runner,
 			},
 		),
 		Runtime: r.Runtime,
@@ -381,7 +381,7 @@ func (r *Runner) printRunHeader(plan *model.Plan, statePath string) {
 	if planLabel == "" {
 		planLabel = "plan"
 	}
-	fmt.Fprintf(r.Stdout, "%s  %s   runner=%s   mode=%s\n", ui.BoldCyan(r.Color, "arx run"), planLabel, r.Executor.Name(), mode)
+	fmt.Fprintf(r.Stdout, "%s  %s   runner=%s   mode=%s\n", ui.BoldCyan(r.Color, "gluon run"), planLabel, r.Executor.Name(), mode)
 	fmt.Fprintf(r.Stdout, "%s state=%s\n", ui.Dim(r.Color, "↳"), statePath)
 	if r.JobID != "" {
 		fmt.Fprintf(r.Stdout, "%s target=%s\n", ui.Dim(r.Color, "↳"), r.JobID)

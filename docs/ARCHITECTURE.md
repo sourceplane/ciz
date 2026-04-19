@@ -1,8 +1,8 @@
-# arx Architecture Guide
+# gluon Architecture Guide
 
 ## Design Philosophy
 
-**arx** is built around three core principles:
+**gluon** is built around three core principles:
 
 1. **Separation of Concerns**: Intent, Jobs, and Plans are distinct layers
 2. **Schema-Driven Everything**: Configuration is validated against schemas
@@ -220,12 +220,12 @@ type JobInstance struct {
 
 ```json
 {
-  "apiVersion": "arx.io/v1",
+  "apiVersion": "gluon.io/v1",
   "kind": "Plan",
   "execution": {
     "concurrency": 4,
     "failFast": true,
-    "stateFile": ".arx-state.json"
+    "stateFile": ".gluon-state.json"
   },
   "jobs": [
     {
@@ -591,7 +591,7 @@ Failed: template rendering in job "web-app@prod.deploy"
 Enables detailed logging of each phase:
 
 ```
-./arx plan --debug
+./gluon plan --debug
 
 📋 Loading intent...
 📚 Loading job registry...
@@ -634,7 +634,7 @@ Enables detailed logging of each phase:
 ## Future Roadmap
 
 - [ ] Schema validation with JSON Schema v5
-- [ ] Plan diffing (arx plan diff old.json new.json)
+- [ ] Plan diffing (gluon plan diff old.json new.json)
 - [ ] Incremental planning (--changed-only)
 - [ ] DAG visualization (--viz dot/svg)
 - [ ] Multi-file intent support

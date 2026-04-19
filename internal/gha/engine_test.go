@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sourceplane/arx/internal/model"
+	"github.com/sourceplane/gluon/internal/model"
 )
 
 func TestParseKVFileSupportsHeredocAndBOM(t *testing.T) {

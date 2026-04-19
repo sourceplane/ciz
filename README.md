@@ -1,4 +1,4 @@
-# arx - Schema-Driven Planner Engine
+# gluon - Schema-Driven Planner Engine
 
 A **policy-aware workflow compiler** that turns **intent** into executable **plan DAGs**. Built on CNCF principles.
 
@@ -38,10 +38,10 @@ cd website
 npm ci
 npm run docs:build
 wrangler login
-wrangler pages deploy docs-build --project-name arx-docs
+wrangler pages deploy docs-build --project-name gluon-docs
 ```
 
-Replace `arx-docs` with your Cloudflare Pages project name if it is different.
+Replace `gluon-docs` with your Cloudflare Pages project name if it is different.
 
 ## Installation
 
@@ -51,60 +51,60 @@ Replace `<tag>` with the release you want from the GitHub releases page.
 
 ```bash
 # macOS (arm64 - Apple Silicon)
-curl -L https://github.com/sourceplane/arx/releases/download/<tag>/arx_<tag>_darwin_arm64.tar.gz | tar xz
-sudo mv entrypoint /usr/local/bin/arx
-chmod +x /usr/local/bin/arx
+curl -L https://github.com/sourceplane/gluon/releases/download/<tag>/gluon_<tag>_darwin_arm64.tar.gz | tar xz
+sudo mv entrypoint /usr/local/bin/gluon
+chmod +x /usr/local/bin/gluon
 
 # macOS (amd64 - Intel)
-curl -L https://github.com/sourceplane/arx/releases/download/<tag>/arx_<tag>_darwin_amd64.tar.gz | tar xz
-sudo mv entrypoint /usr/local/bin/arx
-chmod +x /usr/local/bin/arx
+curl -L https://github.com/sourceplane/gluon/releases/download/<tag>/gluon_<tag>_darwin_amd64.tar.gz | tar xz
+sudo mv entrypoint /usr/local/bin/gluon
+chmod +x /usr/local/bin/gluon
 
 # Linux (amd64)
-curl -L https://github.com/sourceplane/arx/releases/download/<tag>/arx_<tag>_linux_amd64.tar.gz | tar xz
-sudo mv entrypoint /usr/local/bin/arx
-chmod +x /usr/local/bin/arx
+curl -L https://github.com/sourceplane/gluon/releases/download/<tag>/gluon_<tag>_linux_amd64.tar.gz | tar xz
+sudo mv entrypoint /usr/local/bin/gluon
+chmod +x /usr/local/bin/gluon
 
 # Linux (arm64)
-curl -L https://github.com/sourceplane/arx/releases/download/<tag>/arx_<tag>_linux_arm64.tar.gz | tar xz
-sudo mv entrypoint /usr/local/bin/arx
-chmod +x /usr/local/bin/arx
+curl -L https://github.com/sourceplane/gluon/releases/download/<tag>/gluon_<tag>_linux_arm64.tar.gz | tar xz
+sudo mv entrypoint /usr/local/bin/gluon
+chmod +x /usr/local/bin/gluon
 ```
 
 Verify installation:
 ```bash
-arx --version
-arx --help
+gluon --version
+gluon --help
 ```
 
 ### Option 2: From Source
 
 ```bash
-git clone https://github.com/sourceplane/arx.git
-cd arx
-go build -o arx ./cmd/arx
-sudo mv arx /usr/local/bin/
+git clone https://github.com/sourceplane/gluon.git
+cd gluon
+go build -o gluon ./cmd/gluon
+sudo mv gluon /usr/local/bin/
 ```
 
 ### Option 3: Docker/OCI Container
 
 ```bash
 # Docker
-docker run ghcr.io/sourceplane/arx:<tag> plan -i intent.yaml
+docker run ghcr.io/sourceplane/gluon:<tag> plan -i intent.yaml
 
 # Podman (recommended for CI/CD)
-podman run ghcr.io/sourceplane/arx:<tag> plan -i intent.yaml
+podman run ghcr.io/sourceplane/gluon:<tag> plan -i intent.yaml
 
 # Kubernetes
-kubectl run arx --image=ghcr.io/sourceplane/arx:<tag>
+kubectl run gluon --image=ghcr.io/sourceplane/gluon:<tag>
 ```
 
 ### Option 4: Using tinx
 
 ```bash
 repo_root="$(pwd)"
-tinx init demo -p ghcr.io/sourceplane/arx:<tag> as arx
-tinx --workspace demo -- arx plan \
+tinx init demo -p ghcr.io/sourceplane/gluon:<tag> as gluon
+tinx --workspace demo -- gluon plan \
   --intent "$repo_root/examples/intent.yaml" \
   --config-dir "$repo_root/assets/config/compositions"
 ```
@@ -113,10 +113,10 @@ tinx --workspace demo -- arx plan \
 
 ```bash
 # Pull the provider artifact
-oras pull ghcr.io/sourceplane/arx:<tag>
+oras pull ghcr.io/sourceplane/gluon:<tag>
 
 # Extract binaries
-tar -xzf arx_<tag>_linux_amd64_oci.tar.gz
+tar -xzf gluon_<tag>_linux_amd64_oci.tar.gz
 ./entrypoint plan -i intent.yaml
 ```
 
@@ -144,8 +144,8 @@ tar -xzf arx_<tag>_linux_amd64_oci.tar.gz
 ## Project Structure
 
 ```
-arx/
-├── cmd/arx/
+gluon/
+├── cmd/gluon/
 │   ├── main.go           # CLI entry point & command handlers
 │   └── models.go         # Domain models and types
 ├── internal/
@@ -183,7 +183,7 @@ arx/
 ### 1. List Available Compositions
 
 ```bash
-arx compositions --config-dir assets/config/compositions
+gluon compositions --config-dir assets/config/compositions
 ```
 
 Output shows all available job compositions (helm, terraform, charts, etc.)
@@ -191,7 +191,7 @@ Output shows all available job compositions (helm, terraform, charts, etc.)
 ### 2. Validate Intent File
 
 ```bash
-arx validate \
+gluon validate \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions
 ```
@@ -201,7 +201,7 @@ arx validate \
 See detailed logs of each compiler stage:
 
 ```bash
-arx debug \
+gluon debug \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions
 ```
@@ -209,7 +209,7 @@ arx debug \
 ### 4. Generate Execution Plan
 
 ```bash
-arx plan \
+gluon plan \
   --intent examples/intent.yaml \
   --config-dir assets/config/compositions \
   --output plan.json \
@@ -225,7 +225,7 @@ Output: Fully resolved execution DAG in `plan.json`
 ```bash
 docker run \
   -v $(pwd):/workspace \
-  ghcr.io/sourceplane/arx:<tag> \
+  ghcr.io/sourceplane/gluon:<tag> \
   plan \
   --intent /workspace/intent.yaml \
   --config-dir /workspace/assets/config/compositions \
@@ -237,7 +237,7 @@ docker run \
 ```bash
 podman run \
   -v $(pwd):/workspace \
-  ghcr.io/sourceplane/arx:<tag> \
+  ghcr.io/sourceplane/gluon:<tag> \
   plan \
   --intent /workspace/intent.yaml \
   --config-dir /workspace/assets/config/compositions
@@ -246,8 +246,8 @@ podman run \
 ### Using in Kubernetes
 
 ```bash
-kubectl run arx-planner \
-  --image=ghcr.io/sourceplane/arx:<tag> \
+kubectl run gluon-planner \
+  --image=ghcr.io/sourceplane/gluon:<tag> \
   --rm -it \
   -- plan \
   --intent intent.yaml \
@@ -258,7 +258,7 @@ kubectl run arx-planner \
 
 ```yaml
 - name: Generate CI Plan
-  uses: docker://ghcr.io/sourceplane/arx:<tag>
+  uses: docker://ghcr.io/sourceplane/gluon:<tag>
   with:
     args: |
       plan \
@@ -267,7 +267,7 @@ kubectl run arx-planner \
       --output plan.json
 ```
 
-    This container-based usage is separate from GitHub Actions compatibility mode during `arx run`. When a compiled plan contains `use:` steps, `arx run` auto-selects the GitHub Actions executor unless you explicitly set `--runner`, `ARX_RUNNER`, or a deprecated compatibility alias.
+    This container-based usage is separate from GitHub Actions compatibility mode during `gluon run`. When a compiled plan contains `use:` steps, `gluon run` auto-selects the GitHub Actions executor unless you explicitly set `--runner`, `GLUON_RUNNER`, or a deprecated compatibility alias.
 
 ## Configuration Schemas
 
@@ -322,7 +322,7 @@ components:
       registry: mycompany.azurecr.io/helm/charts
 ```
 
-External components can live next to the code they own. Each `component.yaml` is loaded from the configured discovery roots, and if `spec.path` is omitted arx defaults the job working directory to the directory containing the manifest.
+External components can live next to the code they own. Each `component.yaml` is loaded from the configured discovery roots, and if `spec.path` is omitted gluon defaults the job working directory to the directory containing the manifest.
 
 **Example component.yaml:**
 ```yaml
@@ -383,7 +383,7 @@ jobs:
 
 ### GitHub Actions Steps In Compositions
 
-`arx` also supports GitHub Actions-style `use:` steps inside a composition. `arx run` auto-selects the GitHub Actions executor when the compiled plan contains any `use:` step, and you can still force it with `--gha`.
+`gluon` also supports GitHub Actions-style `use:` steps inside a composition. `gluon run` auto-selects the GitHub Actions executor when the compiled plan contains any `use:` step, and you can still force it with `--gha`.
 
 See the example files at:
 
@@ -410,7 +410,7 @@ To use that example composition:
 
 1. Copy `examples/compositions/gha-helm/` into your config directory.
 2. Set the component type to `gha-helm`.
-3. Execute the compiled plan with `arx run --plan plan.json --execute`.
+3. Execute the compiled plan with `gluon run --plan plan.json --execute`.
 
 Example component snippet:
 
@@ -439,7 +439,7 @@ The generated plan is a fully resolved DAG.
 **Structure:**
 ```json
 {
-  "apiVersion": "arx.io/v1",
+  "apiVersion": "gluon.io/v1",
   "kind": "Plan",
   "metadata": {
     "name": "microservices-deployment",
@@ -450,7 +450,7 @@ The generated plan is a fully resolved DAG.
   "execution": {
     "concurrency": 4,
     "failFast": true,
-    "stateFile": ".arx-state.json"
+    "stateFile": ".gluon-state.json"
   },
   "spec": {
     "jobBindings": {
@@ -547,21 +547,21 @@ Low Priority  ← Overridden by ←  High Priority
 
 ```bash
 # List available compositions
-arx compositions \
+gluon compositions \
   --config-dir assets/config/compositions
 
 # Validate intent without generating plan
-arx validate \
+gluon validate \
   --intent intent.yaml \
   --config-dir assets/config/compositions
 
 # Debug with detailed logging
-arx debug \
+gluon debug \
   --intent intent.yaml \
   --config-dir assets/config/compositions
 
 # Generate execution plan
-arx plan \
+gluon plan \
   --intent intent.yaml \
   --config-dir assets/config/compositions \
   --output plan.json \
@@ -569,22 +569,22 @@ arx plan \
   --debug
 
 # Preview execution from a compiled plan (dry-run)
-arx run \
+gluon run \
   --plan plan.json
 
 # Execute plan steps
-arx run \
+gluon run \
   --plan plan.json \
   --execute
 
 # Execute using the Docker backend
-arx run \
+gluon run \
   --plan plan.json \
   --execute \
   --runner docker
 
 # Execute using GitHub Actions compatibility mode
-arx run \
+gluon run \
   --plan plan.json \
   --execute \
   --gha
@@ -606,7 +606,7 @@ arx run \
 
 1. `--gha`
 2. `--runner`
-3. `ARX_RUNNER`
+3. `GLUON_RUNNER`
 4. Auto-detect `github-actions` when `GITHUB_ACTIONS=true`
 5. Auto-detect `github-actions` when the compiled plan contains any `use:` step
 6. Otherwise `local`
@@ -627,19 +627,19 @@ Runner notes:
 ls -la assets/config/compositions/
 
 # Use absolute path if relative doesn't work
-arx plan -i intent.yaml -c $(pwd)/assets/config/compositions
+gluon plan -i intent.yaml -c $(pwd)/assets/config/compositions
 ```
 
 ### "Schema validation failed"
 ```bash
 # Check your intent.yaml against the schema
-arx validate -i intent.yaml -c assets/config/compositions
+gluon validate -i intent.yaml -c assets/config/compositions
 ```
 
 ### "Circular dependency detected"
 ```bash
 # Use debug mode to see dependency graph
-arx debug -i intent.yaml -c assets/config/compositions
+gluon debug -i intent.yaml -c assets/config/compositions
 ```
 
 ### Container authentication errors
@@ -680,6 +680,6 @@ MIT License - See [LICENSE](LICENSE) file for details
 
 ## Support
 
-- **Issues:** [GitHub Issues](https://github.com/sourceplane/arx/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/sourceplane/arx/discussions)
+- **Issues:** [GitHub Issues](https://github.com/sourceplane/gluon/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/sourceplane/gluon/discussions)
 - **Email:** team@sourceplane.io

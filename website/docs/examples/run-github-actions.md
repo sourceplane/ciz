@@ -7,27 +7,27 @@ The repository includes a minimal example that installs Helm through a GitHub Ac
 ## Compile the example plan
 
 ```bash
-arx plan \
+gluon plan \
   --intent examples/gha-actions/intent.yaml \
   --config-dir examples/gha-actions/compositions \
-  --output /tmp/arx-gha-actions-plan.json
+  --output /tmp/gluon-gha-actions-plan.json
 ```
 
 ## Execute the plan
 
 ```bash
-arx run \
-  --plan /tmp/arx-gha-actions-plan.json \
+gluon run \
+  --plan /tmp/gluon-gha-actions-plan.json \
   --execute
 ```
 
-Because the plan contains a `use:` step, `arx run` auto-selects the `github-actions` backend unless you explicitly override it.
+Because the plan contains a `use:` step, `gluon run` auto-selects the `github-actions` backend unless you explicitly override it.
 
 ## Force the backend explicitly
 
 ```bash
-arx run \
-  --plan /tmp/arx-gha-actions-plan.json \
+gluon run \
+  --plan /tmp/gluon-gha-actions-plan.json \
   --execute \
   --gha
 ```

@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/sourceplane/arx/internal/ui"
+	"github.com/sourceplane/gluon/internal/ui"
 )
 
 var cliColorEnabled = ui.ColorEnabledForWriter(os.Stdout)

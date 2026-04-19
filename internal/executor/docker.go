@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/sourceplane/arx/internal/model"
+	"github.com/sourceplane/gluon/internal/model"
 )
 
 type dockerExecutor struct {

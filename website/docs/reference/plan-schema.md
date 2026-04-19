@@ -2,13 +2,13 @@
 title: Plan schema
 ---
 
-The plan schema defines the artifact produced by `arx plan` and consumed by `arx run`.
+The plan schema defines the artifact produced by `gluon plan` and consumed by `gluon run`.
 
 ## Top-level fields
 
 | Field | Meaning |
 | --- | --- |
-| `apiVersion` | `arx.io/v1` |
+| `apiVersion` | `gluon.io/v1` |
 | `kind` | Always `Plan` |
 | `metadata` | Name, description, namespace, generation timestamp, checksum |
 | `execution` | Concurrency, fail-fast behavior, and state-file name |
@@ -59,7 +59,7 @@ Steps can also declare:
 
 ```json
 {
-  "apiVersion": "arx.io/v1",
+  "apiVersion": "gluon.io/v1",
   "kind": "Plan",
   "metadata": {
     "name": "demo",
@@ -69,7 +69,7 @@ Steps can also declare:
   "execution": {
     "concurrency": 4,
     "failFast": true,
-    "stateFile": ".arx-state.json"
+    "stateFile": ".gluon-state.json"
   },
   "jobs": []
 }

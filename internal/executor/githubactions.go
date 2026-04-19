@@ -1,8 +1,8 @@
 package executor
 
 import (
-	"github.com/sourceplane/arx/internal/gha"
-	"github.com/sourceplane/arx/internal/model"
+	"github.com/sourceplane/gluon/internal/gha"
+	"github.com/sourceplane/gluon/internal/model"
 )
 
 type githubActionsExecutor struct {

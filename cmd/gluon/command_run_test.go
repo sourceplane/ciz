@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/sourceplane/arx/internal/model"
+	"github.com/sourceplane/gluon/internal/model"
 )
 
 func TestResolveRunnerNameDefaultsToLocal(t *testing.T) {

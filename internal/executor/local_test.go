@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sourceplane/arx/internal/model"
+	"github.com/sourceplane/gluon/internal/model"
 )
 
 func TestLocalExecutorRunStepRejectsGitHubActionUseSteps(t *testing.T) {

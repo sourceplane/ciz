@@ -9,13 +9,13 @@ import (
 	"sort"
 	"time"
 
-	"github.com/sourceplane/arx/internal/model"
+	"github.com/sourceplane/gluon/internal/model"
 	"gopkg.in/yaml.v3"
 )
 
 const (
-	planAPIVersion   = "arx.io/v1"
-	defaultStateFile = ".arx-state.json"
+	planAPIVersion   = "gluon.io/v1"
+	defaultStateFile = ".gluon-state.json"
 )
 
 // Renderer materializes job instances into a Plan
