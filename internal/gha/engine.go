@@ -347,6 +347,44 @@ func (e *Engine) newJobState(ctx ExecContext, job model.PlanJob) (*jobState, err
 	} else {
 		globalEnv["HOME"] = homeDir
 	}
+
+	// Per-job tool-install prefixes. Without these, `npm install -g pnpm`
+	// (which kiox-action and many setup-* actions run) writes to the system
+	// node prefix (e.g. /opt/homebrew/lib/node_modules), and parallel jobs
+	// race there with ENOTEMPTY / TAR_ENTRY_ERROR. Mirroring GHA semantics:
+	// each job gets its own HOME-scoped install prefix (GHA achieves this by
+	// fresh per-job VMs); content-addressed caches (npm cache, pnpm store,
+	// terraform plugins) stay shared because concurrent reads + atomic writes
+	// are safe and that matches GHA's warm-runner behavior.
+	sharedCache := filepath.Join(e.cacheDir, "shared")
+	npmGlobal := filepath.Join(homeDir, ".npm-global")
+	pnpmHome := filepath.Join(homeDir, ".local", "share", "pnpm")
+	for _, dir := range []string{
+		npmGlobal,
+		filepath.Join(npmGlobal, "bin"),
+		pnpmHome,
+		filepath.Join(sharedCache, "npm"),
+		filepath.Join(sharedCache, "pnpm-store"),
+		filepath.Join(sharedCache, "terraform-plugins"),
+	} {
+		_ = os.MkdirAll(dir, 0o755)
+	}
+	globalEnv["npm_config_prefix"] = npmGlobal
+	globalEnv["npm_config_cache"] = filepath.Join(sharedCache, "npm")
+	globalEnv["NPM_CONFIG_PREFIX"] = npmGlobal
+	globalEnv["NPM_CONFIG_CACHE"] = filepath.Join(sharedCache, "npm")
+	globalEnv["PNPM_HOME"] = pnpmHome
+	globalEnv["pnpm_config_store_dir"] = filepath.Join(sharedCache, "pnpm-store")
+	globalEnv["PNPM_CONFIG_STORE_DIR"] = filepath.Join(sharedCache, "pnpm-store")
+	globalEnv["TF_PLUGIN_CACHE_DIR"] = filepath.Join(sharedCache, "terraform-plugins")
+	// Prepend per-job binary dirs so freshly-installed tools resolve before
+	// any system copy. Actions can still extend PATH per-step via $GITHUB_PATH.
+	npmBin := filepath.Join(npmGlobal, "bin")
+	if existing := globalEnv["PATH"]; existing != "" {
+		globalEnv["PATH"] = npmBin + string(os.PathListSeparator) + pnpmHome + string(os.PathListSeparator) + existing
+	} else {
+		globalEnv["PATH"] = npmBin + string(os.PathListSeparator) + pnpmHome
+	}
 	globalEnv["CI"] = "true"
 	globalEnv["GITHUB_ACTIONS"] = "true"
 	globalEnv["ACTIONS_RUNTIME_URL"] = firstNonEmpty(globalEnv["ACTIONS_RUNTIME_URL"], "https://gluon.invalid/runtime")

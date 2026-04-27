@@ -31,6 +31,8 @@ var (
 	runComponent          []string
 	runEnv                string
 	runJSON               bool
+	runIsolation          string
+	runKeepWorkspaces     bool
 )
 
 var runCmd = &cobra.Command{
@@ -62,6 +64,8 @@ func registerRunCommand(root *cobra.Command) {
 	runCmd.Flags().StringArrayVar(&runComponent, "component", nil, "Filter jobs by component (repeatable)")
 	runCmd.Flags().StringVarP(&runEnv, "env", "e", "", "Filter jobs by environment")
 	runCmd.Flags().BoolVar(&runJSON, "json", false, "Output in JSON format")
+	runCmd.Flags().StringVar(&runIsolation, "isolation", "auto", "Per-job workspace isolation: auto (on when concurrency>1), workspace (always on), none (legacy shared tree)")
+	runCmd.Flags().BoolVar(&runKeepWorkspaces, "keep-workspaces", false, "Don't delete per-job staged workspaces after the run (debug)")
 
 	_ = runCmd.Flags().MarkDeprecated("job-id", "use --job instead")
 }
@@ -176,6 +180,8 @@ func runPlan() error {
 		runComponent,
 		runEnv,
 	)
+	r.Isolation = runner.IsolationMode(strings.ToLower(strings.TrimSpace(runIsolation)))
+	r.KeepWorkspaces = runKeepWorkspaces
 	if err := r.Run(plan); err != nil {
 		return err
 	}
