@@ -21,6 +21,18 @@ import (
 	"github.com/sourceplane/gluon/internal/ui"
 )
 
+// IsolationMode controls how each job's working tree is materialized.
+//   - IsolationAuto: stage per-job when effective concurrency > 1 (default)
+//   - IsolationWorkspace: always stage per job
+//   - IsolationNone: share the source tree across all jobs (legacy behavior)
+type IsolationMode string
+
+const (
+	IsolationAuto      IsolationMode = "auto"
+	IsolationWorkspace IsolationMode = "workspace"
+	IsolationNone      IsolationMode = "none"
+)
+
 type Runner struct {
 	WorkDir            string
 	UseWorkDirOverride bool
@@ -38,6 +50,8 @@ type Runner struct {
 	Concurrency        int
 	FilterComponents   []string
 	FilterEnv          string
+	Isolation          IsolationMode
+	KeepWorkspaces     bool
 	printMu            sync.Mutex
 	stateMu            sync.Mutex
 
@@ -372,7 +386,28 @@ func (r *Runner) executeJob(job model.PlanJob, jobState *state.JobState, execSta
 	jobFailed := false
 	jobStartedAt := time.Now()
 	jobReport := newJobReport(job, r.DryRun)
+
+	// Per-job workspace isolation. We stage the source tree into a job-private
+	// directory so concurrent jobs don't race on node_modules / .turbo / dist
+	// rewrites. UseWorkDirOverride means the user pinned a workdir explicitly —
+	// honor that and skip staging.
+	stagedRoot := ""
+	if r.shouldIsolate() && !r.DryRun && !r.UseWorkDirOverride {
+		staged, err := stageJobWorkspace(baseExecContext.WorkspaceDir, r.ExecID, job.ID, r.KeepWorkspaces)
+		if err != nil {
+			fmt.Fprintf(r.Stderr, "warning: workspace isolation failed for %s, falling back to shared tree: %v\n", job.ID, err)
+		} else {
+			defer staged.Cleanup()
+			stagedRoot = staged.Path()
+			baseExecContext.WorkspaceDir = stagedRoot
+			baseExecContext.WorkDir = stagedRoot
+		}
+	}
+
 	jobWorkingDir := r.resolveWorkingDir(job.Path)
+	if stagedRoot != "" {
+		jobWorkingDir = resolveWorkingDirAt(stagedRoot, job.Path)
+	}
 	currentPhase := ""
 	for idx, step := range job.Steps {
 		stepID := stepIdentifier(step)
@@ -985,6 +1020,31 @@ func unresolvedDependencies(job model.PlanJob, execState *state.ExecState) []str
 		}
 	}
 	return missing
+}
+
+func (r *Runner) shouldIsolate() bool {
+	switch r.Isolation {
+	case IsolationNone:
+		return false
+	case IsolationWorkspace:
+		return true
+	default:
+		return r.Concurrency > 1
+	}
+}
+
+// resolveWorkingDirAt computes a job's working directory anchored at the given
+// base (typically a per-job staged workspace root). Mirrors resolveWorkingDir
+// semantics but ignores r.WorkDir / r.UseWorkDirOverride — the caller has
+// already decided to redirect everything under base.
+func resolveWorkingDirAt(base, path string) string {
+	if path == "" || path == "./" {
+		return base
+	}
+	if filepath.IsAbs(path) {
+		return path
+	}
+	return filepath.Join(base, path)
 }
 
 func (r *Runner) resolveWorkingDir(path string) string {
