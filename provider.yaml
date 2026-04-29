@@ -9,20 +9,20 @@ metadata:
   license: MIT
 spec:
   runtime: binary
-  entrypoint: entrypoint
+  entrypoint: orun
   platforms:
     - os: darwin
       arch: amd64
-      binary: bin/darwin/amd64/entrypoint
+      binary: bin/darwin/amd64/orun
     - os: darwin
       arch: arm64
-      binary: bin/darwin/arm64/entrypoint
+      binary: bin/darwin/arm64/orun
     - os: linux
       arch: amd64
-      binary: bin/linux/amd64/entrypoint
+      binary: bin/linux/amd64/orun
     - os: linux
       arch: arm64
-      binary: bin/linux/arm64/entrypoint
+      binary: bin/linux/arm64/orun
   capabilities:
     plan:
       description: Generate an execution plan from an intent specification
