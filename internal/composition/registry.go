@@ -1,7 +1,9 @@
 package composition
 
 import (
+	"archive/tar"
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -1029,21 +1031,8 @@ func ensureCachedOCI(remoteRef, digest string) (string, error) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	outputDir := tempDir + string(filepath.Separator)
-
-	// If the remote is a stack artifact, pull only the compositions layer to avoid
-	// downloading the (potentially large) examples layer.
-	isStack, checkErr := ociArtifactIsStack(remoteRef)
-	var cmd *exec.Cmd
-	if checkErr == nil && isStack {
-		cmd = exec.Command("oras", "pull", remoteRef, "-o", outputDir,
-			"--media-type", compositionsLayerMediaType)
-	} else {
-		cmd = exec.Command("oras", "pull", remoteRef, "-o", outputDir)
-	}
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", fmt.Errorf("oras pull failed: %w\n%s", err, strings.TrimSpace(string(output)))
+	if err := fetchAndExtractOCICompositionsLayer(remoteRef, tempDir); err != nil {
+		return "", fmt.Errorf("failed to pull OCI compositions layer: %w", err)
 	}
 
 	if err := os.RemoveAll(cacheDir); err != nil {
@@ -1053,6 +1042,122 @@ func ensureCachedOCI(remoteRef, digest string) (string, error) {
 		return "", err
 	}
 	return cacheDir, nil
+}
+
+// fetchAndExtractOCICompositionsLayer fetches the compositions layer from an OCI artifact
+// (using oras manifest fetch + oras blob fetch) and extracts the tar+gzip into destDir.
+// It prefers compositionsLayerMediaType, falls back to compositionPackageLayerType.
+func fetchAndExtractOCICompositionsLayer(remoteRef, destDir string) error {
+	// Fetch manifest to locate the layer digest.
+	manifestCmd := exec.Command("oras", "manifest", "fetch", remoteRef, "--format", "json")
+	manifestJSON, err := manifestCmd.Output()
+	if err != nil {
+		return fmt.Errorf("oras manifest fetch failed: %w", err)
+	}
+
+	layerDigest, err := pickCompositionsLayerDigest(manifestJSON)
+	if err != nil {
+		return err
+	}
+
+	// Build blob ref: strip tag/digest from remoteRef, append layer digest.
+	repoRef := stripRefTagOrDigest(remoteRef)
+	blobRef := repoRef + "@" + layerDigest
+
+	// Fetch blob bytes.
+	blobCmd := exec.Command("oras", "blob", "fetch", blobRef, "--output", "-")
+	blobBytes, err := blobCmd.Output()
+	if err != nil {
+		return fmt.Errorf("oras blob fetch failed: %w", err)
+	}
+
+	// Extract tar+gzip into destDir.
+	return extractTarGzReader(bytes.NewReader(blobBytes), destDir)
+}
+
+// pickCompositionsLayerDigest parses the oras manifest JSON and returns the digest of
+// the best layer: compositionsLayerMediaType first, then compositionPackageLayerType,
+// then the first layer of any media type.
+func pickCompositionsLayerDigest(manifestJSON []byte) (string, error) {
+	var doc struct {
+		Content struct {
+			Layers []struct {
+				Digest    string `json:"digest"`
+				MediaType string `json:"mediaType"`
+			} `json:"layers"`
+		} `json:"content"`
+	}
+	if err := json.Unmarshal(manifestJSON, &doc); err != nil {
+		return "", fmt.Errorf("failed to parse manifest JSON: %w", err)
+	}
+	layers := doc.Content.Layers
+	if len(layers) == 0 {
+		return "", fmt.Errorf("OCI manifest has no layers")
+	}
+	for _, l := range layers {
+		if l.MediaType == compositionsLayerMediaType {
+			return l.Digest, nil
+		}
+	}
+	for _, l := range layers {
+		if l.MediaType == compositionPackageLayerType {
+			return l.Digest, nil
+		}
+	}
+	return layers[0].Digest, nil
+}
+
+// stripRefTagOrDigest removes the :tag or @digest suffix from an OCI ref,
+// returning just the registry+repo portion.
+func stripRefTagOrDigest(ref string) string {
+	ref = strings.TrimPrefix(ref, "oci://")
+	if idx := strings.LastIndex(ref, "@"); idx != -1 {
+		return ref[:idx]
+	}
+	if idx := strings.LastIndex(ref, ":"); idx != -1 {
+		// Ensure there's a / after the colon position to distinguish tag from port.
+		if strings.ContainsRune(ref[idx:], '/') {
+			return ref
+		}
+		return ref[:idx]
+	}
+	return ref
+}
+
+// extractTarGzReader reads a tar+gzip stream and extracts all regular files into destDir.
+func extractTarGzReader(r io.Reader, destDir string) error {
+	gr, err := gzip.NewReader(r)
+	if err != nil {
+		return fmt.Errorf("failed to create gzip reader: %w", err)
+	}
+	defer gr.Close()
+	tr := tar.NewReader(gr)
+	for {
+		hdr, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("tar read error: %w", err)
+		}
+		if hdr.Typeflag != tar.TypeReg {
+			continue
+		}
+		target := filepath.Join(destDir, filepath.FromSlash(hdr.Name))
+		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+			return err
+		}
+		f, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, hdr.FileInfo().Mode())
+		if err != nil {
+			return err
+		}
+		if _, err := io.Copy(f, tr); err != nil {
+			f.Close()
+			return err
+		}
+		f.Close()
+	}
+	return nil
 }
 
 // ociArtifactIsStack fetches the OCI manifest and returns true when at least one layer
