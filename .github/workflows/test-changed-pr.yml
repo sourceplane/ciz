@@ -1,0 +1,42 @@
+name: Test --changed in PR context
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-changed-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build orun
+        run: go build -o orun ./cmd/orun
+
+      - name: Test --changed with PR base ref
+        run: |
+          ./orun component --changed \
+            --base "${{ github.event.pull_request.base.ref }}" \
+            --intent examples/intent.yaml
+
+      - name: Test --changed defaults (base=main)
+        run: |
+          ./orun component --changed \
+            --intent examples/intent.yaml
+
+      - name: Test plan --changed with PR base
+        run: |
+          ./orun plan --changed \
+            --base "${{ github.event.pull_request.base.ref }}" \
+            --intent examples/intent.yaml \
+            --output /tmp/pr-changed-plan.json || true

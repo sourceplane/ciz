@@ -85,3 +85,34 @@ jobs:
               --root "$GITHUB_WORKSPACE/examples/compositions" \
               --dry-run
 
+      - name: Smoke test --changed flag
+        uses: sourceplane/kiox-action@v2.1.2
+        with:
+          version: v0.4.3
+          providers: |
+            ${{ github.workspace }}/oci as orun
+          run: |
+            # Single leaf component changed
+            orun component --changed --files apps/web-console/src/app.js \
+              --intent "$GITHUB_WORKSPACE/examples/intent.yaml"
+
+            # Infra change triggers dependency chain
+            orun plan --changed --files infra/infra-1/main.tf \
+              --intent "$GITHUB_WORKSPACE/examples/intent.yaml" \
+              --output "$RUNNER_TEMP/orun-changed-infra.json"
+            test -s "$RUNNER_TEMP/orun-changed-infra.json"
+
+            # Intent change = all components
+            orun plan --changed --files intent.yaml \
+              --intent "$GITHUB_WORKSPACE/examples/intent.yaml" \
+              --output "$RUNNER_TEMP/orun-changed-intent.json"
+            test -s "$RUNNER_TEMP/orun-changed-intent.json"
+
+            # No matching files = no crash, empty output
+            orun component --changed --files README.md \
+              --intent "$GITHUB_WORKSPACE/examples/intent.yaml"
+
+            # Flag conflicts are rejected
+            ! orun component --changed --files foo.txt --uncommitted \
+              --intent "$GITHUB_WORKSPACE/examples/intent.yaml" 2>/dev/null
+
