@@ -38,13 +38,17 @@ var (
 )
 
 var runCmd = &cobra.Command{
-	Use:           "run",
+	Use:           "run [planhash]",
 	Short:         "Run a plan",
-	Long:          "Run the jobs in a plan with concise live progress. Use --dry-run to preview without executing.",
+	Long:          "Run the jobs in a plan with concise live progress.\n\nWithout a plan hash, orun generates a fresh plan from intent.yaml and runs it immediately.\nSupply a plan hash (or name) to run a specific saved plan instead.\n\nUse --changed to generate and run a plan for only the changed components.\nUse --dry-run to preview without executing.",
 	SilenceErrors: true,
 	SilenceUsage:  true,
+	Args:          cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		runUseWorkDirOverride = cmd.Flags().Changed("workdir")
+		if len(args) > 0 {
+			runPlanRef = args[0]
+		}
 		return runPlan()
 	},
 }
@@ -52,7 +56,16 @@ var runCmd = &cobra.Command{
 func registerRunCommand(root *cobra.Command) {
 	root.AddCommand(runCmd)
 
-	runCmd.Flags().StringVarP(&runPlanRef, "plan", "p", "", "Plan reference: file path, name, checksum prefix, or 'latest' (default: latest)")
+	runCmd.Flags().StringVarP(&runPlanRef, "plan", "p", "", "Plan reference: file path, name, or checksum prefix (deprecated: use positional argument)")
+
+	// Plan generation flags — used when no planhash argument is given
+	runCmd.Flags().BoolVar(&changedOnly, "changed", false, "Generate plan with only changed components (requires git)")
+	runCmd.Flags().StringVar(&baseBranch, "base", "", "Base ref for changed detection (default: main)")
+	runCmd.Flags().StringVar(&headRef, "head", "", "Head ref for changed detection (default: HEAD)")
+	runCmd.Flags().StringSliceVar(&changedFiles, "files", nil, "Comma-separated changed files (overrides git diff calculation)")
+	runCmd.Flags().BoolVar(&uncommitted, "uncommitted", false, "Use only uncommitted changes")
+	runCmd.Flags().BoolVar(&untracked, "untracked", false, "Use only untracked files")
+	runCmd.Flags().BoolVar(&explainChanged, "explain", false, "Show how --changed refs were resolved")
 	runCmd.Flags().BoolVar(&runDryRun, "dry-run", false, "Preview the run without executing jobs")
 	runCmd.Flags().BoolVar(&runVerbose, "verbose", false, "Expand step commands and raw logs inline")
 	runCmd.Flags().StringVar(&runWorkDir, "workdir", ".", "Override working directory for all jobs")
@@ -214,31 +227,33 @@ func resolveAndLoadPlan(store *state.Store) (*model.Plan, error) {
 		ref = os.Getenv("ORUN_PLAN_ID")
 	}
 
-	// If no plan ref given, try latest from store
-	if ref == "" {
-		path, err := store.ResolvePlanRef("latest")
+	// If a specific ref was given, load that plan directly.
+	if ref != "" {
+		path, err := store.ResolvePlanRef(ref)
 		if err != nil {
-			// No plan exists yet — auto-generate
-			fmt.Println("No saved plan found. Generating one from intent...")
-			if genErr := generatePlan(); genErr != nil {
-				return nil, fmt.Errorf("failed to auto-generate plan: %w", genErr)
+			if fileExistsCheck(ref) {
+				return loadPlan(ref)
 			}
-			path, err = store.ResolvePlanRef("latest")
-			if err != nil {
-				return nil, fmt.Errorf("failed to load generated plan: %w", err)
-			}
+			return nil, fmt.Errorf("plan not found: %s", ref)
 		}
 		return loadPlan(path)
 	}
 
-	// Try store resolution first (name, checksum prefix, latest)
-	path, err := store.ResolvePlanRef(ref)
+	// No ref: always generate a fresh plan from current intent.
+	// Sync run-time env/component filters into the plan-generation globals so
+	// --env and --component are respected during planning.
+	if environment == "" {
+		environment = runEnv
+	}
+	if len(planComponents) == 0 && len(runComponent) > 0 {
+		planComponents = runComponent
+	}
+	if genErr := generatePlan(); genErr != nil {
+		return nil, fmt.Errorf("failed to generate plan: %w", genErr)
+	}
+	path, err := store.ResolvePlanRef("latest")
 	if err != nil {
-		// Fall back to direct file path
-		if fileExistsCheck(ref) {
-			return loadPlan(ref)
-		}
-		return nil, fmt.Errorf("plan not found: %s", ref)
+		return nil, fmt.Errorf("failed to load generated plan: %w", err)
 	}
 	return loadPlan(path)
 }

@@ -292,10 +292,10 @@ func generatePlan() error {
 	// Actionable hint
 	if numJobs > 0 {
 		if planID != "" {
-			fmt.Printf("  %s orun run --plan %s\n", ui.Dim(color, "→"), planID)
+			fmt.Printf("  %s orun run %s\n", ui.Dim(color, "→"), planID)
 		}
 		if planName != "" {
-			fmt.Printf("  %s orun run --plan %s\n", ui.Dim(color, "→"), planName)
+			fmt.Printf("  %s orun run %s\n", ui.Dim(color, "→"), planName)
 		}
 	}
 
