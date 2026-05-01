@@ -103,9 +103,9 @@ func TestRunCommandRejectsTooManyArgs(t *testing.T) {
 	}
 }
 
-func TestRunCommandUseSyntaxIncludesPlanhash(t *testing.T) {
-	if !strings.Contains(runCmd.Use, "[planhash]") {
-		t.Fatalf("expected runCmd.Use to contain [planhash], got %q", runCmd.Use)
+func TestRunCommandUseSyntaxIncludesComponentAndPlanhash(t *testing.T) {
+	if !strings.Contains(runCmd.Use, "component") || !strings.Contains(runCmd.Use, "planhash") {
+		t.Fatalf("expected runCmd.Use to reference component and planhash, got %q", runCmd.Use)
 	}
 }
 

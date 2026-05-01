@@ -8,9 +8,14 @@ var (
 )
 
 var planCmd = &cobra.Command{
-	Use:   "plan",
+	Use:   "plan [component]",
 	Short: "Generate execution plan from intent",
+	Long:  "Generate an execution plan from intent.yaml.\n\nOptionally pass a component name to scope the plan to that component only.\nEquivalent to --component <name> but more convenient for quick runs.",
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) > 0 {
+			planComponents = append(planComponents, args[0])
+		}
 		return generatePlan()
 	},
 }

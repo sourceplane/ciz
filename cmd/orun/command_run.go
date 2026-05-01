@@ -38,9 +38,9 @@ var (
 )
 
 var runCmd = &cobra.Command{
-	Use:           "run [planhash]",
+	Use:           "run [component|planhash]",
 	Short:         "Run a plan",
-	Long:          "Run the jobs in a plan with concise live progress.\n\nWithout a plan hash, orun generates a fresh plan from intent.yaml and runs it immediately.\nSupply a plan hash (or name) to run a specific saved plan instead.\n\nUse --changed to generate and run a plan for only the changed components.\nUse --dry-run to preview without executing.",
+	Long:          "Run the jobs in a plan with concise live progress.\n\nPass a component name to scope to that component — a fresh plan is generated and run immediately.\nPass a plan hash (or name) to run a specific saved plan.\nOmit the argument to generate and run a full fresh plan.\n\nUse --changed to limit the generated plan to changed components only.\nUse --dry-run to preview without executing.",
 	SilenceErrors: true,
 	SilenceUsage:  true,
 	Args:          cobra.MaximumNArgs(1),
@@ -227,21 +227,21 @@ func resolveAndLoadPlan(store *state.Store) (*model.Plan, error) {
 		ref = os.Getenv("ORUN_PLAN_ID")
 	}
 
-	// If a specific ref was given, load that plan directly.
+	// If a specific ref was given, try to resolve it as a saved plan first.
 	if ref != "" {
-		path, err := store.ResolvePlanRef(ref)
-		if err != nil {
-			if fileExistsCheck(ref) {
-				return loadPlan(ref)
-			}
-			return nil, fmt.Errorf("plan not found: %s", ref)
+		if path, err := store.ResolvePlanRef(ref); err == nil {
+			return loadPlan(path)
 		}
-		return loadPlan(path)
+		if fileExistsCheck(ref) {
+			return loadPlan(ref)
+		}
+		// Not a plan ref or file path — treat as a component name to scope the fresh plan.
+		planComponents = []string{ref}
+		runComponent = []string{ref}
 	}
 
-	// No ref: always generate a fresh plan from current intent.
-	// Sync run-time env/component filters into the plan-generation globals so
-	// --env and --component are respected during planning.
+	// Generate a fresh plan from current intent, respecting any filters.
+	// Sync run-time env filter into the plan-generation global when not already set.
 	if environment == "" {
 		environment = runEnv
 	}
