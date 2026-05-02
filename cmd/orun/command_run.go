@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -283,6 +284,10 @@ func runPlan() error {
 
 	if remoteActive {
 		if err := setupRemoteStateHooks(r, plan, planID, execID, backendURL); err != nil {
+			var alreadyDone *jobAlreadyCompleteError
+			if errors.As(err, &alreadyDone) {
+				return nil
+			}
 			return err
 		}
 	}
@@ -493,15 +498,29 @@ func (e *jobAlreadyCompleteError) Error() string {
 
 // waitForJobRunnable polls /runnable until jobID appears or deadline is exceeded.
 func waitForJobRunnable(ctx context.Context, backend statebackend.Backend, runID, jobID string, delay time.Duration, deadline time.Time) error {
-	remote, ok := backend.(*statebackend.RemoteStateBackend)
-	if !ok {
-		// FileStateBackend — always runnable locally.
-		return nil
+	const (
+		pollInit = 2 * time.Second
+		pollMax  = 15 * time.Second
+	)
+	poll := pollInit
+	for {
+		if time.Now().After(deadline) {
+			return fmt.Errorf("job %s: dependency wait timeout exceeded while polling /runnable", jobID)
+		}
+		if err := sleepOrDone(ctx, poll); err != nil {
+			return err
+		}
+		jobs, err := backend.RunnableJobs(ctx, runID)
+		if err != nil {
+			return fmt.Errorf("polling runnable jobs: %w", err)
+		}
+		for _, id := range jobs {
+			if id == jobID {
+				return nil
+			}
+		}
+		poll = nextBackoff(poll, pollMax)
 	}
-	// We need the underlying client to call GetRunnable.
-	// Use LoadRunState as an approximation if GetRunnable is not exposed.
-	_ = remote // not used directly here; we use the Backend interface
-	return sleepOrDone(ctx, delay)
 }
 
 // runHeartbeat sends heartbeats every 30 seconds until the context is cancelled.

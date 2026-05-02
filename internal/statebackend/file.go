@@ -52,6 +52,11 @@ func (f *FileStateBackend) AppendStepLog(_ context.Context, _, _, _ string) erro
 	return nil
 }
 
+// RunnableJobs is a no-op locally — all jobs are considered runnable.
+func (f *FileStateBackend) RunnableJobs(_ context.Context, _ string) ([]string, error) {
+	return nil, nil
+}
+
 func (f *FileStateBackend) LoadRunState(_ context.Context, runID string) (*state.ExecState, *state.ExecMetadata, error) {
 	st, err := f.Store.LoadState(runID)
 	if err != nil {

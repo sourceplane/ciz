@@ -123,7 +123,7 @@ type ListJobsResponse struct {
 
 // RunnableResponse is from GET /v1/runs/{runID}/runnable.
 type RunnableResponse struct {
-	JobIDs []string `json:"jobIds"`
+	JobIDs []string `json:"jobs"`
 }
 
 // ClaimJobRequest is the body for POST /v1/runs/{runID}/jobs/{jobID}/claim.

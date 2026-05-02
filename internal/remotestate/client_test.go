@@ -245,3 +245,41 @@ func TestClient_GetLog_NotFound(t *testing.T) {
 		t.Errorf("expected empty log for 404, got %q", log)
 	}
 }
+
+func TestClient_GetRunnable(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"jobs": []string{"job-a", "job-b"},
+		})
+	}))
+	defer srv.Close()
+
+	c := newTestClient(srv)
+	jobs, err := c.GetRunnable(context.Background(), "run-1")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(jobs) != 2 || jobs[0] != "job-a" || jobs[1] != "job-b" {
+		t.Errorf("expected [job-a job-b], got %v", jobs)
+	}
+}
+
+func TestClient_GetRunnable_EmptyList(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"jobs": []string{},
+		})
+	}))
+	defer srv.Close()
+
+	c := newTestClient(srv)
+	jobs, err := c.GetRunnable(context.Background(), "run-1")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(jobs) != 0 {
+		t.Errorf("expected empty list, got %v", jobs)
+	}
+}

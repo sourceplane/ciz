@@ -108,6 +108,10 @@ func (r *RemoteStateBackend) AppendStepLog(ctx context.Context, runID string, jo
 	return r.client.UploadLog(ctx, runID, jobID, content)
 }
 
+func (r *RemoteStateBackend) RunnableJobs(ctx context.Context, runID string) ([]string, error) {
+	return r.client.GetRunnable(ctx, runID)
+}
+
 func (r *RemoteStateBackend) LoadRunState(ctx context.Context, runID string) (*state.ExecState, *state.ExecMetadata, error) {
 	run, err := r.client.GetRun(ctx, runID)
 	if err != nil {

@@ -62,6 +62,9 @@ type Backend interface {
 	// AppendStepLog appends step output to the job-level log.
 	AppendStepLog(ctx context.Context, runID string, jobID string, content string) error
 
+	// RunnableJobs returns the list of job IDs that are currently runnable for the given run.
+	RunnableJobs(ctx context.Context, runID string) ([]string, error)
+
 	// LoadRunState reads run state for display (status/logs commands).
 	LoadRunState(ctx context.Context, runID string) (*state.ExecState, *state.ExecMetadata, error)
 
