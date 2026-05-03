@@ -21,10 +21,7 @@ jobs:
           cache: true
 
       - name: Run Go tests
-        run: |
-          go test ./...
-          cd scripts/releaser
-          go test ./...
+        run: go test ./...
 
       - name: Run GitHub Actions compatibility tests
         run: go test ./internal/gha -run 'Test(ParseKVFileSupportsHeredocAndBOM|ProcessWorkflowCommandsParsesLegacyCommands|EngineRunStepLocalCompositeActionPropagatesOutputsAndEnv)$'

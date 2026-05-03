@@ -16,7 +16,6 @@ Run the main test suites:
 
 ```bash
 go test ./...
-cd scripts/releaser && go test ./...
 ```
 
 Preview the docs site:
