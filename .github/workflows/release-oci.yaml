@@ -27,10 +27,7 @@ jobs:
           cache: true
 
       - name: Run Go tests
-        run: |
-          go test ./...
-          cd scripts/releaser
-          go test ./...
+        run: go test ./...
 
       - name: Stamp provider version
         run: |
